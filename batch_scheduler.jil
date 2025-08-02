@@ -1,0 +1,31 @@
+/*
+ * batch_scheduler.jil
+ *
+ * This JIL defines a nightly batch job in AutoSys to execute the
+ * server maintenance script.  It demonstrates common JIL attributes such
+ * as command, machine, schedule, stdout/stderr redirection and retry
+ * behaviour.  Replace <YOUR_USER> and <YOUR_PATH> with real values when
+ * deploying in your environment.
+ */
+
+insert_job: nightly_server_maintenance   job_type: c
+command: /usr/bin/python3 /home/<YOUR_USER>/<YOUR_PATH>/server_maintenance.py
+machine: server01
+owner: <YOUR_USER>@example.com
+permission: gx,ge,wx,we
+description: "Nightly maintenance to log server metrics and alert on thresholds"
+std_out_file: /home/<YOUR_USER>/logs/server_maintenance.`date +%Y%m%d`.out
+std_err_file: /home/<YOUR_USER>/logs/server_maintenance.`date +%Y%m%d`.err
+send_notification: y
+alarm_if_fail: 1
+max_run_alarm: 2
+watch_file: /home/<YOUR_USER>/logs/server_maintenance.`date +%Y%m%d`.out
+application: operations
+profile: ops
+start_times: "23:00"
+days_of_week: all
+run_calendar: workdays
+term_run_time: 2
+max_run_time: 1.00
+retry_count: 3
+box_name: maintenance_jobs
